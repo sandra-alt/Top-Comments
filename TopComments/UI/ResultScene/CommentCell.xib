@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Verdana.ttf">
+            <string>Verdana</string>
+        </array>
+        <array key="VerdanaBold.ttf">
+            <string>Verdana-Bold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommentCell" rowHeight="172" id="KGk-i7-Jjw" customClass="CommentCell" customModule="TopComments" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="332" height="172"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="332" height="171.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rpo-fN-C2g">
+                        <rect key="frame" x="10" y="5" width="312" height="161.5"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="500" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dzs-Es-y6o">
+                                <rect key="frame" x="274" y="10" width="28" height="16"/>
+                                <fontDescription key="fontDescription" name="Verdana-Bold" family="Verdana" pointSize="13"/>
+                                <color key="textColor" red="0.2156862745" green="0.74509803919999995" blue="0.66274509800000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k95-91-tlG">
+                                <rect key="frame" x="8" y="68.5" width="302" height="91.5"/>
+                                <string key="text">perspiciatis quis doloremque\nveniam nisi eos velit sed\nid totam inventore voluptatem laborum et eveniet\naut aut aut maxime quia temporibus ut omnis</string>
+                                <fontDescription key="fontDescription" name="Verdana" family="Verdana" pointSize="15"/>
+                                <color key="textColor" red="0.34901960784313724" green="0.34901960784313724" blue="0.34901960784313724" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PUS-of-drY">
+                                <rect key="frame" x="10" y="10" width="256" height="30"/>
+                                <string key="text">Label\n 
+Label</string>
+                                <fontDescription key="fontDescription" name="Verdana" family="Verdana" pointSize="12"/>
+                                <color key="textColor" red="0.2156862745" green="0.74509803919999995" blue="0.66274509800000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mqh-m3-5tp">
+                                <rect key="frame" x="10" y="44.5" width="32" height="15"/>
+                                <fontDescription key="fontDescription" name="Verdana" family="Verdana" pointSize="12"/>
+                                <color key="textColor" red="0.2156862745" green="0.74509803919999995" blue="0.66274509800000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="k95-91-tlG" secondAttribute="trailing" constant="2" id="2tR-hU-fj5"/>
+                            <constraint firstItem="PUS-of-drY" firstAttribute="leading" secondItem="rpo-fN-C2g" secondAttribute="leading" constant="10" id="5im-QI-Zvv"/>
+                            <constraint firstAttribute="trailing" secondItem="Dzs-Es-y6o" secondAttribute="trailing" constant="10" id="Puy-kb-IyD"/>
+                            <constraint firstItem="Dzs-Es-y6o" firstAttribute="top" secondItem="rpo-fN-C2g" secondAttribute="top" constant="10" id="UwY-ur-HH4"/>
+                            <constraint firstAttribute="trailing" secondItem="PUS-of-drY" secondAttribute="trailing" constant="46" id="eNa-ak-W4u"/>
+                            <constraint firstItem="k95-91-tlG" firstAttribute="leading" secondItem="rpo-fN-C2g" secondAttribute="leading" constant="8" id="ekV-bc-jFq"/>
+                            <constraint firstItem="PUS-of-drY" firstAttribute="top" secondItem="rpo-fN-C2g" secondAttribute="top" constant="10" id="gZa-tb-obG"/>
+                            <constraint firstItem="k95-91-tlG" firstAttribute="top" secondItem="Mqh-m3-5tp" secondAttribute="bottom" constant="9" id="jDS-1v-OJ8"/>
+                            <constraint firstAttribute="bottom" secondItem="k95-91-tlG" secondAttribute="bottom" priority="750" constant="10" id="nof-SX-1C2"/>
+                            <constraint firstItem="Mqh-m3-5tp" firstAttribute="top" secondItem="PUS-of-drY" secondAttribute="bottom" constant="5" id="qEl-1p-VcR"/>
+                            <constraint firstItem="Mqh-m3-5tp" firstAttribute="leading" secondItem="rpo-fN-C2g" secondAttribute="leading" constant="10" id="tX2-2O-JGv"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="rpo-fN-C2g" secondAttribute="bottom" constant="5" id="JSQ-PH-6Sj"/>
+                    <constraint firstItem="rpo-fN-C2g" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="K8o-8J-vcd"/>
+                    <constraint firstItem="rpo-fN-C2g" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="N9v-Jw-QyQ"/>
+                    <constraint firstAttribute="trailing" secondItem="rpo-fN-C2g" secondAttribute="trailing" constant="10" id="Sqv-UZ-JpZ"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="bgView" destination="rpo-fN-C2g" id="ivl-Dl-bbX"/>
+                <outlet property="commentLabel" destination="k95-91-tlG" id="yvr-4o-rkJ"/>
+                <outlet property="emailLabel" destination="Mqh-m3-5tp" id="7n8-L3-2SK"/>
+                <outlet property="idLabel" destination="Dzs-Es-y6o" id="g94-RN-Hrx"/>
+                <outlet property="nameLabel" destination="PUS-of-drY" id="aUc-UA-oy2"/>
+            </connections>
+            <point key="canvasLocation" x="85" y="124"/>
+        </tableViewCell>
+    </objects>
+</document>
