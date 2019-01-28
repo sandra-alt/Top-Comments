@@ -19,6 +19,7 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     private let maxBound = 500
     private let paginationConst = 10
     private var responseResults = [Comment]()
+    
     private let networkService = NetworkService()
     
     @IBOutlet weak var lowerBoundTextField: UITextField!
@@ -28,13 +29,14 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
     
+    //MARK: - UIView
     
     override func viewDidLoad() {
         super.viewDidLoad()
         lowerBoundTextField.delegate = self
         upperBoundTextField.delegate = self
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name:.UIKeyboardWillHide, object: nil)
@@ -104,22 +106,32 @@ class InputViewController: UIViewController, UITextFieldDelegate {
             })
             
         default:
-            
             guard let lowerBound = Int(lowerBoundTextField.text!) else {return}
             guard var upperBound = Int(upperBoundTextField.text!) else {return}
             
             if lowerBound < upperBound {
                 requestButton.setTitle(ButtonTitle.cancel.rawValue, for: .normal)
                 activityIndicator.startAnimating()
-
                 if (upperBound - lowerBound) >= self.paginationConst {
                     upperBound = lowerBound + self.paginationConst
                 }
+
+                let startDate = Date()
                 networkService.fetchCommentsFrom(lowerBound, to: upperBound, completion: { (comments) in
+                    //calculating the time taken for the network request
+                    let requestExecutionTime = Date().timeIntervalSince(startDate)
+                    if requestExecutionTime > 3 {
                         self.activityIndicator.stopAnimating()
-                        self.requestButton.setTitle(ButtonTitle.request.rawValue, for: .normal)
-                        self.responseResults = comments
-                        self.performSegue(withIdentifier: self.segueIdentifier, sender: self)
+                    } else {
+                        Timer.scheduledTimer(withTimeInterval: 3 - requestExecutionTime, repeats: false, block: { (timer) in
+                            self.activityIndicator.stopAnimating()
+                            self.requestButton.setTitle(ButtonTitle.request.rawValue, for: .normal)
+                            self.responseResults = comments
+                            if !self.networkService.wasCanceled {
+                                self.performSegue(withIdentifier: self.segueIdentifier, sender: self)
+                            }
+                        })
+                    }
                 })
             } else {
                 presentAlert()
