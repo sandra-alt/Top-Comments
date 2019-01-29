@@ -10,10 +10,11 @@ import Foundation
 import Alamofire
 
 class ResponseParser {
-    func parseComments(response: [[String: Any]]) -> [Comment] {
-        let comments : [Comment] = response.map({ json in
-                return Comment(json: json)
-        })
+    func parseComments(response: DataResponse<Data>) -> [Comment]? {
+        guard let data = response.result.value,
+            let comments = try? JSONDecoder().decode([Comment].self, from: data) else {
+                return nil
+        }
         return comments
     }
 }

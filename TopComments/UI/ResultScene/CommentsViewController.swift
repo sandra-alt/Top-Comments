@@ -28,7 +28,7 @@ class CommentsViewController: UITableViewController {
         super.viewDidLoad()
         
         configureRange()
-        configureView ()
+        configureView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -48,12 +48,18 @@ class CommentsViewController: UITableViewController {
     }
     
     func configureRange() {
+        
+        //count lower and upper bounds to fetch first after the result
+        
         currentStartId = startId + paginationConst
         currentEndId = min(currentStartId + paginationConst, endId)
         needsPagination = (endId - startId) > paginationConst
     }
     
     func countRange() {
+        
+        //count new lower and upper bounds of the next page to fetch
+        
         if (endId - currentStartId) > paginationConst {
             needsPagination = true
             currentStartId = currentStartId + paginationConst
@@ -86,18 +92,30 @@ class CommentsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        //fetching a new page when scrolled to the bottom of the current page
          if !isFirstPage && needsPagination && cell.isKind(of: LoadingCell.self) {
             fetchNextPage()
             countRange()
         }
     }
     
-    func fetchNextPage() {
-        NetworkService().fetchCommentsFrom(currentStartId, to: currentEndId, completion: { (page) in
+    private func fetchNextPage() {
+        NetworkService().fetchCommentsFrom(currentStartId, to: currentEndId, completion: { [weak self] page in
             DispatchQueue.main.async {
-                self.comments.append(contentsOf: page)
-                self.tableView.reloadData()
+                guard let comments = page else {
+                    self?.presentAlert(with: "Network error")
+                    return
+                }
+                self?.comments.append(contentsOf: comments)
+                self?.tableView.reloadData()
             }
         })
+    }
+    
+    private func presentAlert(with message: String) {
+        let alertController = UIAlertController(title: "Attention!", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alertController, animated: true, completion: nil)
     }
 }

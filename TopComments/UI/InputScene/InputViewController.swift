@@ -14,6 +14,8 @@ private enum ButtonTitle : String {
     case cancel = "Cancel"
 }
 
+private let segueIdentifier = "ShowComments"
+
 class InputViewController: UIViewController, UITextFieldDelegate {
 
     private let maxBound = 500
@@ -21,6 +23,7 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     private var responseResults = [Comment]()
     
     private let networkService = NetworkService()
+    private var wasCanceled = false
     
     @IBOutlet weak var lowerBoundTextField: UITextField!
     @IBOutlet weak var upperBoundTextField: UITextField!
@@ -28,6 +31,7 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var activityIndicator: NVActivityIndicatorView!
     
     @IBOutlet weak var scrollView: UIScrollView!
+    
     
     //MARK: - UIView
     
@@ -38,8 +42,10 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name:.UIKeyboardWillHide, object: nil)
+        
+        //adding an observer for managing the view during keyboard events
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name:.UIKeyboardWillHide, object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -49,13 +55,18 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     //MARK - UITextField Delegate
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        //letting a user to enter only numbers
         let newString = NSString(string: textField.text!).replacingCharacters(in: range, with: string)
         let allowedCharacters = CharacterSet(charactersIn:"0123456789")
         let characterSet = CharacterSet(charactersIn: newString)
+        
+        //letting user to enter only 3 characters and not grater than max ammount of comments
         if newString.count > 3  || !allowedCharacters.isSuperset(of: characterSet) || (Int(newString) != nil && Int(newString)! > maxBound) {
             return false
         }
 
+        //enabling request button only when the user entered something
         let validInput = (newString.count > 0) && ((textField.isEqual(lowerBoundTextField) && (upperBoundTextField.text != ""))  || (textField.isEqual(upperBoundTextField) && (lowerBoundTextField.text != "")))
         
         requestButton.isEnabled = validInput
@@ -75,6 +86,7 @@ class InputViewController: UIViewController, UITextFieldDelegate {
         contentInset.bottom = keyboardFrame.size.height
         scrollView.contentInset = contentInset
         
+        //focusing the request button slightly higher than the top edge of the keyboard when it apperars
         let verticalSpaceToKeyboard: CGFloat = 20.0
         
         var aRect = requestButton.frame
@@ -89,23 +101,20 @@ class InputViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Button Actions and Navigation
     
-    private let segueIdentifier = "ShowComments"
-    
     @IBAction func requestButtonPressed() {
         lowerBoundTextField.resignFirstResponder()
         upperBoundTextField.resignFirstResponder()
         
-        guard let buttonType = ButtonTitle(rawValue: requestButton.title(for: .normal)!) else {
-            return
-        }
+        //pressing on the button which can either create a network request, or cancel it
+        
+        guard let buttonType = ButtonTitle(rawValue: requestButton.title(for: .normal)!) else { return }
+        
         switch buttonType {
         case .cancel:
-            networkService.cancelRequest(completion: {
-                self.activityIndicator.stopAnimating()
-                self.requestButton.setTitle(ButtonTitle.request.rawValue, for: .normal)
-            })
-            
-        default:
+            wasCanceled = true
+            cancelFetchRequest()
+        case .request:
+            wasCanceled = false
             guard let lowerBound = Int(lowerBoundTextField.text!) else {return}
             guard var upperBound = Int(upperBoundTextField.text!) else {return}
             
@@ -115,34 +124,71 @@ class InputViewController: UIViewController, UITextFieldDelegate {
                 if (upperBound - lowerBound) >= self.paginationConst {
                     upperBound = lowerBound + self.paginationConst
                 }
-
-                let startDate = Date()
-                networkService.fetchCommentsFrom(lowerBound, to: upperBound, completion: { (comments) in
-                    //calculating the time taken for the network request
-                    let requestExecutionTime = Date().timeIntervalSince(startDate)
-                    if requestExecutionTime > 3 {
-                        self.activityIndicator.stopAnimating()
-                    } else {
-                        Timer.scheduledTimer(withTimeInterval: 3 - requestExecutionTime, repeats: false, block: { (timer) in
-                            self.activityIndicator.stopAnimating()
-                            self.requestButton.setTitle(ButtonTitle.request.rawValue, for: .normal)
-                            self.responseResults = comments
-                            if !self.networkService.wasCanceled {
-                                self.performSegue(withIdentifier: self.segueIdentifier, sender: self)
-                            }
-                        })
-                    }
-                })
+                performFetchRequest(lowerBound, to: upperBound)
             } else {
-                presentAlert()
+                presentAlert(with: "The upper bound should be grater than the lower bound")
             }
         }
     }
     
-    func presentAlert() {
-        let alertController = UIAlertController(title: "Alert", message: "The upper bound should be grater than the lower bound", preferredStyle: .alert)
+    private var delayEventsCombiner: EventsCombiner?
+    
+    private func performFetchRequest(_ startId: Int, to endId: Int) {
+        
+        //combining 2 events: a loading animation for 3 seconds and a network request
+        
+        delayEventsCombiner = EventsCombiner(totalEvents: 2) { [weak self] in
+            defer {
+                self?.activityIndicator.stopAnimating()
+            }
+            
+            if self?.responseResults.count == 0 {
+                self?.presentAlert(with: "Can not fetch comments")
+                return
+            }
+            if self?.wasCanceled ?? false {
+                return
+            }
+            
+            self?.performSegue(withIdentifier: segueIdentifier, sender: self)
+        }
+        
+        Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
+            defer {
+                self?.delayEventsCombiner?.completeOne()
+            }
+            self?.requestButton.setTitle(ButtonTitle.request.rawValue, for: .normal)
+        }
+        
+        networkService.fetchCommentsFrom(startId, to: endId) { [weak self] comments in
+            defer {
+                self?.delayEventsCombiner?.completeOne()
+            }
+            
+            guard let comments = comments else {
+                self?.presentAlert(with: "Network error")
+                return
+            }
+            self?.responseResults = comments
+        }
+    }
+    
+    private func presentAlert(with message: String) {
+        let alertController = UIAlertController(title: "Attention!", message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alertController, animated: true, completion: nil)
+    }
+    
+    private func cancelFetchRequest(){
+        
+        //attempt to cancel a current request
+        activityIndicator.stopAnimating()
+        requestButton.setTitle(ButtonTitle.request.rawValue, for: .normal)
+        
+        //in some cases a network request is too fast to cancel, we have a response and the alert won't be shown
+        networkService.cancelRequest(completion: { [weak self] in
+            self?.presentAlert(with: "Current request was canceled")
+        })
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -151,6 +197,26 @@ class InputViewController: UIViewController, UITextFieldDelegate {
             commentsViewController.comments = responseResults
             commentsViewController.startId = Int(lowerBoundTextField.text!)!
             commentsViewController.endId = Int(upperBoundTextField.text!)!
+        }
+    }
+    
+}
+
+private class EventsCombiner {
+    
+    private let completion: () -> Void
+    private let totalEvents: Int
+    private var completeEvents: Int = 0
+    
+    init(totalEvents: Int, completion: @escaping (() -> Void)) {
+        self.totalEvents = totalEvents
+        self.completion = completion
+    }
+    
+    func completeOne() {
+        completeEvents += 1
+        if totalEvents == completeEvents {
+            completion()
         }
     }
     
